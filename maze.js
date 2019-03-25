@@ -10,16 +10,17 @@ var sounds = '';
 
   start.addEventListener("mouseover", function(event) {
     sounds = playSounds();
-    document.getElementById("status").innerHTML = "Move your mouse over the S to begin";
+    document.getElementById("status").innerHTML = "Trebuie sa ajungi la E pentru a castiga";
     for (var i = 0; i < boundaries.length; i++) {
-      boundaries[i].addEventListener("mouseover", function() {
+      boundaries[i].addEventListener("mouseover", function checkCollision() {
         win = false;
         this.style.background = "red";
         clearInterval(sounds);
-        alert("YOU LOSE! START OVER!");
+        alert("AI PIERDUT!MAI INCEARCA");
         this.style.background = "#eeeeee";
-        document.getElementById("status").innerHTML = "YOU LOSE!";
+        document.getElementById("status").innerHTML = "AI PIERDUT";
         event.stopPropagation();
+        this.removeEventListener("mouseover", checkCollision);
       });
     }
 
@@ -36,7 +37,7 @@ function playSounds(){
 end.addEventListener("mouseover", function() {
   if (win == true) {
     document.getElementById("status").innerHTML = "YOU WIN!";
-    alert("CONGRATULATIONS! YOU WIN!");
+    alert("BRAVO! AI CASTIGAT!");
   }
   win = true;
 });
