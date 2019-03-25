@@ -3,9 +3,10 @@ function setup() {
   createCanvas(200,200);
   mic = new p5.AudioIn()
   mic.start();
-  var speech = new P5.Speech();
-  speech.speack('Buna!Cum te cheama?');
-  var recording = new P5.SpeechRec();
+  var speech = new p5.Speech();
+  speech.speak('Buna!Cum te cheama?');
+  recording.onResult = speechRecognized;
+  var recording = new p5.SpeechRec();
   recording.start();
   }
   function draw(){
@@ -14,3 +15,7 @@ function setup() {
     console.log(vol);
     ellipse(100,100, vol*200, vol*200);
   }
+
+function speechRecognized(){
+  console.log('Found it');
+}
