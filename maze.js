@@ -20,7 +20,9 @@ var sounds = '';
         this.style.background = "#eeeeee";
         document.getElementById("status").innerHTML = "AI PIERDUT";
         event.stopPropagation();
+        boundaries.forEach(function(){
         this.removeEventListener("mouseover", checkCollision);
+      });
       });
     }
 
