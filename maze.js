@@ -8,6 +8,10 @@ var audio = new Audio('BikeHorn-SoundBible.com-602544869.mp3');
 var sounds = '';
 
 
+  $( document.body ).click(function() {
+      audio.play();
+  });
+
 
   start.addEventListener("mouseover", function(event) {
     // sounds = playSounds();

@@ -1,4 +1,4 @@
-var mic;
+let mic;
 let video;
 let features;
 let knn;
@@ -7,11 +7,17 @@ let ready = false;
 let x;
 let y;
 let label = 'nothing';
-var volumeDetection = [];
+let volumeDetection = [];
+let audio;
+let pitchClassifier;
+let speechRec;
+
+
 
 function setup() {
   //video
-  // createCanvas(320, 240);
+  audio = new AudioContext();
+  noCanvas();
   video = createCapture(VIDEO);
   video.size(320, 240);
   features = ml5.featureExtractor('MobileNet', modelReady);
@@ -21,22 +27,23 @@ function setup() {
   x = width / 2;
   y = height / 2;
 
-  //get volume of microphone
-  mic = new p5.AudioIn()
-  mic.start();
-  setInterval(function(){
-    volumeDetection.push(mic.getLevel());
-  }, 500);
 
-  var speech = new p5.Speech();
-  //text to speech
-  speech.speak('What is your name?');
+  //get volume of microphone
+
+  // setInterval(function(){
+  //   volumeDetection.push(mic.getLevel());
+  // }, 500);
+
+  // var speech = new p5.Speech();
+  // //text to speech
+  // speech.speak('What is your name?');
 
   //see if there is a speech recognition
-  var recording = new p5.SpeechRec();
-  recording.start();
-  recording.onResult = speechRecognized;
+
+
+
   }
+
   function draw(){
     background(0);
     fill(255);
@@ -95,6 +102,8 @@ function setup() {
     saveFile(fileName, JSON.stringify({ dataset, tensors }));
   };
 
+
+
   const saveFile = (name, data) => {
     const downloadElt = document.createElement('a');
     const blob = new Blob([data], { type: 'octet/stream' });
@@ -108,9 +117,6 @@ function setup() {
     URL.revokeObjectURL(url);
   };
 
-function speechRecognized(){
-  console.log('Found it');
-}
 
 function keyPressed() {
   const logits = features.infer(video);
@@ -131,10 +137,58 @@ function keyPressed() {
     //knn.save('model.json');
   }
 }
+
+
 function modelReady() {
   console.log('model ready!');
   // Comment back in to load your own model!
   // knn.load('model.json', function() {
   //   console.log('knn loaded');
   // });
+}
+
+function micReady() {
+  console.log('Mic is ready');
+  pitchClassifier = ml5.pitchDetection('./model/', audio , mic.stream, modelDone);
+}
+
+function modelDone() {
+  console.log('Pitch model ready');
+  detectPitch();
+
+}
+
+function startMicrophone() {
+  console.log('Resuming..');
+  audio.resume().then(() => {
+    setSpeechRecognition();
+    console.log('Playback resumed successfully');
+    mic = new p5.AudioIn();
+    mic.start(micReady);
+
+  });
+}
+
+function detectPitch() {
+  setInterval(function () {
+    pitchClassifier.getPitch(function(err, frequency){
+      console.log(frequency)
+    });
+  },100);
+}
+
+function setSpeechRecognition() {
+  speechRec = new p5.SpeechRec('en-US');
+  speechRec.continuous = true;
+  speechRec.interimResults = false  ;
+  speechRec.onResult = gotSpeech;
+  speechRec.start();
+}
+
+function gotSpeech() {
+  console.log('Pending for speech');
+  if(speechRec.resultValue){
+    createP(speechRec.resultString);
+  }
+  console.log(speechRec.resultString);
 }
